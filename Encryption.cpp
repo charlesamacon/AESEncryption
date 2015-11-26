@@ -9,6 +9,7 @@ char plaintext[999999];
 char key[16];
 char newKey[999999];
 char encrpyted[999999];
+char shifted[999999];
 char output[999999];
 
 int length = 0;
@@ -145,31 +146,145 @@ void substitution()
 
 void padding()
 {
-	cout << "Padding" << endl;
+	cout << "Padding:" << endl;
+	int firstSpace = 0;
+	int secondSpace = 0;
 	for (int k = 0; k < length; k++)
 	{
-		for (int i = 0; i < 4; i++)
+		cout << encrpyted[k];
+
+		firstSpace++;
+		secondSpace++;
+		if (firstSpace == 4)
 		{
-			for (int j = 0; j < 4; j++)
-			{
-				cout << encrpyted[k];
-				k++;
-				//we're missing letters here...
-			}
 			cout << endl;
+			firstSpace = 0;
 		}
-		cout << endl;
+		if (secondSpace == 16)
+		{
+			cout << endl;
+			secondSpace = 0;
+		}
 	}
+
+	// Add padding to end of array
+	if (secondSpace < 16)
+	{
+		while (secondSpace < 16)
+		{
+			cout << 'A';
+			
+			encrpyted[length] = 'A';
+			length++;
+			firstSpace++;
+			secondSpace++;
+			if (firstSpace == 4)
+			{
+				cout << endl;
+				firstSpace = 0;
+			}
+		}
+	}
+	cout << endl;
 }
 
 void shiftrows()
 {
-	cout << "Shift Rows" << endl;
+	cout << "Shift Rows:" << endl;
+	int firstSpace = 0;
+	int secondSpace = 0;
+	//cout << endl;
+	//cout << "Row offset:" << endl;
+	for (int k = 0; k < length; k += 4)
+	{
+		//cout << (k % 16) / 4 << endl;
+
+		// Here is where we shift the rows
+		// Above value is the offset for each row
+
+		// Get the offset for the first number in each row
+		// Store that row, and offset
+		int offset = (k % 16) / 4;
+
+		switch (offset)
+		{
+		case 0: 
+			//cout << "Shifting 0" << endl;
+			shifted[k] = encrpyted[k];
+			shifted[k+1] = encrpyted[k+1];
+			shifted[k+2] = encrpyted[k+2];
+			shifted[k+3] = encrpyted[k+3];
+			break;
+		case 1: 
+			//cout << "Shifting 1" << endl;
+			shifted[k] = encrpyted[k+1];
+			shifted[k + 1] = encrpyted[k + 2];
+			shifted[k + 2] = encrpyted[k + 3];
+			shifted[k + 3] = encrpyted[k];
+			break;
+		case 2: 
+			//cout << "Shifting 2" << endl;
+			shifted[k] = encrpyted[k +2];
+			shifted[k + 1] = encrpyted[k + 3];
+			shifted[k + 2] = encrpyted[k];
+			shifted[k + 3] = encrpyted[k + 1];
+			break;
+		case 3: 
+			//cout << "Shifting 3" << endl;
+			shifted[k] = encrpyted[k + 3];
+			shifted[k + 1] = encrpyted[k];
+			shifted[k + 2] = encrpyted[k + 1];
+			shifted[k + 3] = encrpyted[k + 2];
+			break;
+		}
+	}
+	//system("PAUSE");
+	//firstSpace = 0;
+	//secondSpace = 0;
+	for (int k = 0; k < length; k++)
+	{
+		cout << shifted[k];
+
+		firstSpace++;
+		secondSpace++;
+		if (firstSpace == 4)
+		{
+			cout << endl;
+			firstSpace = 0;
+		}
+		if (secondSpace == 16)
+		{
+			cout << endl;
+			secondSpace = 0;
+		}
+	}
+	cout << endl;
 }
 
 void parityBit()
 {
-	cout << "Parity Bit" << endl;
+	cout << "Parity Bit:" << endl;
+	int firstSpace = 0;
+	int secondSpace = 0;
+
+	for (int k = 0; k < length; k++)
+	{
+		cout << charToInt(shifted[k]) + 41 << " ";
+
+		firstSpace++;
+		secondSpace++;
+		if (firstSpace == 4)
+		{
+			cout << endl;
+			firstSpace = 0;
+		}
+		if (secondSpace == 16)
+		{
+			cout << endl;
+			secondSpace = 0;
+		}
+	}
+	cout << endl;
 }
 
 void mixColumn()
@@ -202,9 +317,10 @@ int main()
 			if (isalpha(c))
 			{
 				plaintext[i] = c;
+				i++;
 			}
 		}
-		i++;
+		
 	}
 
 	cout << endl;
@@ -227,8 +343,9 @@ int main()
 		if (isalpha(ch))
 		{
 			key[j] = ch;
+			j++;
 		}
-		j++;
+		
 	}
 
 	cout << endl;
@@ -241,7 +358,9 @@ int main()
 
 	
 	substitution();
+	system("PAUSE");
 	padding();
+	system("PAUSE");
 	shiftrows();
 	parityBit();
 	mixColumn();
